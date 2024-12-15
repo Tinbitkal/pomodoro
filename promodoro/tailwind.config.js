@@ -6,11 +6,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Customize colors for dark and light themes
-        background: {
-          light: "#ffffff",
-          dark: "#1f2937",
-        },
+        'bg-gray-800': '#1f2937',
       },
     },
   },
