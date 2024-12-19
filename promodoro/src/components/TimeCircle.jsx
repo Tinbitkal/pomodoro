@@ -26,7 +26,7 @@ const TimeCircle = ({ duration, isRunning, resetSignal }) => {
                   border-4 border-white 
                   flex justify-center items-center shadow-lg 
                   mx-auto mt-8 
-                  ${isRunning ? "bg-sky-800 text-white" : "bg-sky-300 text-black"}
+                  ${isRunning ? "bg-sky-800 text-black" : "bg-sky-100 text-black"}
                   transition-all duration-300
                   dark:bg-sky-800 dark:text-white`}
     >

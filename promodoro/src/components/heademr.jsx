@@ -1,72 +1,69 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-const Header = ({ isDarkMode, toggleTheme }) => {
-  // State to control sidebar visibility
-  const [showSidebar, setShowSidebar] = useState(false);
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
+const Header = ({ isDarkMode, toggleTheme, toggleSidebar }) => {
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
 
   return (
-    <>
-      {/* Header */}
-      <header className="bg-slate-200 dark:bg-gray-800 text-black dark:text-white py-4 px-4 flex justify-between items-center">
-        {/* Sidebar Toggle Button */}
-        <button onClick={toggleSidebar} className="text-black dark:text-white text-3xl">
-          ☰
-        </button>
+    <header className="bg-slate-400 text-white py-4 px-6 flex justify-between items-center dark:bg-gray-800">
+      {/* Sidebar Toggle Button - Only for Small Screens */}
+      <button
+        onClick={toggleSidebar}
+        className="text-black dark:text-white text-3xl md:hidden"
+        aria-label="Open Sidebar"
+      >
+        ☰
+      </button>
 
-        {/* App Title */}
-        <h1 className="font-bold text-3xl">Pomodoro Timer</h1>
+      {/* App Title */}
+      <h1 className="font-bold text-3xl">Pomodoro Timer</h1>
 
+      <div className="flex items-center space-x-4">
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="rounded-full bg-gray-200 dark:bg-gray-700 p-2"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-800 shadow-md dark:bg-gray-700 dark:text-yellow-400 transition-colors duration-300"
+          aria-label="Toggle Dark Mode"
         >
           {isDarkMode ? "🌙" : "☀️"}
         </button>
-      </header>
 
-      {/* Sidebar */}
-      {showSidebar && (
-        <div
-          className={`fixed top-0 left-0 h-full w-64 shadow-lg z-50
-          ${isDarkMode ? "bg-gray-800 text-white" : "bg-slate-200 text-black"}
-          transition-all duration-300`}
-        >
+        {/* Profile Section */}
+        <div className="relative">
           <button
-            onClick={toggleSidebar}
-            className="absolute top-4 right-4 text-3xl"
+            onClick={() => setShowProfileMenu((prev) => !prev)}
+            className="rounded-full w-10 h-10 overflow-hidden border border-gray-300 dark:border-gray-600"
+            aria-label="Open Profile Menu"
           >
-            ✖
+            <img
+              src="https://i.pravatar.cc/300"
+              alt="User Profile"
+              className="w-full h-full object-cover"
+            />
           </button>
 
-          <nav className="mt-8">
-            {["Home", "Profile", "Settings", "Logout", "States", "Plan"].map(
-              (item) => (
-                <div
+          {/* Dropdown Menu */}
+          {showProfileMenu && (
+            <div className="absolute right-0 mt-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg py-2 w-48">
+              {["Profile", "Plan", "States", "Logout"].map((item) => (
+                <Link
                   key={item}
-                  onClick={() => console.log(`${item} clicked`)}
-                  className="px-6 py-4 hover:bg-gray-300 dark:hover:bg-gray-900 cursor-pointer"
+                  to={`/${item.toLowerCase()}`}
+                  className="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  onClick={() => setShowProfileMenu(false)}
                 >
                   {item}
-                </div>
-              )
-            )}
-          </nav>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </>
+      </div>
+    </header>
   );
 };
 

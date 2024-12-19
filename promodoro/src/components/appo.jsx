@@ -1,65 +1,89 @@
-import React, { useState } from "react";
+// App.jsx
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import TabButton from "./components/TabButton";
-import TimeCircle from "./components/TimeCircle";
-import ControlButtons from "./components/ControlButtons";
+import Sidebar from "./components/Sidebar";
+import Home from "./components/pages/Home";
+import States from "./components/pages/States";
 
-const tabsData = [
-  { label: "Pomodoro", value: "pomodoro", duration: "25:00" },
-  { label: "Short Break", value: "short-break", duration: "5:00" },
-  { label: "Long Break", value: "long-break", duration: "15:00" },
-];
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState(tabsData[0]?.value);
-  const [isRunning, setIsRunning] = useState(false);
-  const [resetSignal, setResetSignal] = useState(false);
+const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [isWideScreen, setIsWideScreen] = useState(window.innerWidth >= 768);
+  const [sessionData, setSessionData] = useState([]);
 
-  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+  // Load session data from localStorage on component mount
+  useEffect(() => {
+    const savedSessions = JSON.parse(localStorage.getItem("sessionData"));
+    if (savedSessions) setSessionData(savedSessions);
+  }, []);
 
-  const currentTab = tabsData.find((tab) => tab.value === activeTab);
-
-  const handleStartPause = () => setIsRunning((prev) => !prev);
-
-  const handleRestart = () => {
-    setIsRunning(false);
-    setResetSignal((prev) => !prev);
+  // Save completed session to localStorage
+  const handleSessionComplete = (sessionInfo) => {
+    const updatedSessionData = [...sessionData, sessionInfo];
+    setSessionData(updatedSessionData);
+    localStorage.setItem("sessionData", JSON.stringify(updatedSessionData));
   };
 
-  return (
-    <>
-      <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-      
-      <div className="relative p-4 max-w-4xl mx-auto mt-8 rounded-lg shadow-lg bg-white dark:bg-gray-900">
-        <div className="flex space-x-4 border-b border-gray-200 pb-2 mt-4">
-          {tabsData.map((tab) => (
-            <TabButton
-              key={tab.value}
-              tab={tab}
-              activeTab={activeTab}
-              setActiveTab={(value) => {
-                setActiveTab(value);
-                setResetSignal((prev) => !prev);
-                setIsRunning(false);
-              }}
-            />
-          ))}
-        </div>
+  // Toggle dark theme
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+  const toggleSidebar = () => setShowSidebar((prev) => !prev);
 
-        {currentTab && (
-          <TimeCircle
-            duration={currentTab.duration}
-            isRunning={isRunning}
-            resetSignal={resetSignal}
-          />
-        )}
-        <ControlButtons
-          isRunning={isRunning}
-          handleStartPause={handleStartPause}
-          handleRestart={handleRestart}
+  // Handle window resize
+  const handleResize = () => {
+    setIsWideScreen(window.innerWidth >= 768);
+    if (window.innerWidth >= 768) {
+      setShowSidebar(true);
+    }
+  };
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <Router>
+      <div className={`flex ${isDarkMode ? "dark" : ""}`}>
+        {/* Sidebar */}
+        <Sidebar
+          isDarkMode={isDarkMode}
+          showSidebar={showSidebar}
+          toggleSidebar={toggleSidebar}
         />
+
+        {/* Main Content */}
+        <div className="flex-1 md:ml-60 transition-all duration-300">
+          <Header
+            isDarkMode={isDarkMode}
+            toggleTheme={toggleTheme}
+            toggleSidebar={toggleSidebar}
+          />
+          <main className="p-6">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Home
+                    isDarkMode={isDarkMode}
+                    handleSessionComplete={handleSessionComplete}
+                  />
+                }
+              />
+              <Route
+                path="/states"
+                element={<States sessionData={sessionData} />}
+              />
+            </Routes>
+          </main>
+        </div>
       </div>
-    </>
+    </Router>
   );
-}
+};
+
+export default App;
+
+

@@ -1,103 +1,69 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const Header = ({ isDarkMode, toggleTheme }) => {
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
+const Header = ({ isDarkMode, toggleTheme, toggleSidebar }) => {
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  // Sync with document class for dark mode
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
 
-  const toggleSidebar = () => setShowSidebar((prev) => !prev);
-  const toggleThemeHandler = () => toggleTheme();
-  const toggleMenu = () => setShowMenu((prev) => !prev);
-
-  const handleMenuItemClick = (option) => {
-    console.log(`${option} clicked`);
-    setShowMenu(false);
-  };
-
   return (
-    <div className="min-h-screen transition-colors duration-300 bg-white text-black dark:bg-gray-900 dark:text-white">
-      
-      {/* Header */}
-      <header className="bg-slate-400 text-white py-4 px-4 flex justify-between items-center relative dark:bg-gray-800">
-        {/* Hamburger Icon */}
-        <button onClick={toggleSidebar} className="text-white text-3xl">
-          ☰
-        </button>
+    <header className="bg-slate-400 text-white py-4 px-6 flex justify-between items-center dark:bg-gray-800">
+      {/* Sidebar Toggle Button - Only for Small Screens */}
+      <button
+        onClick={toggleSidebar}
+        className="text-black dark:text-white text-3xl md:hidden"
+        aria-label="Open Sidebar"
+      >
+        ☰
+      </button>
 
-        {/* App Title */}
-        <h1 className="font-bold text-3xl">Pomodoro Timer</h1>
+      {/* App Title */}
+      <h1 className="font-bold text-3xl">Pomodoro Timer</h1>
 
+      <div className="flex items-center space-x-4">
         {/* Theme Toggle Button */}
         <button
-          onClick={toggleThemeHandler}
+          onClick={toggleTheme}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-800 shadow-md dark:bg-gray-700 dark:text-yellow-400 transition-colors duration-300"
+          aria-label="Toggle Dark Mode"
         >
           {isDarkMode ? "🌙" : "☀️"}
         </button>
 
-        {/* Profile Icon */}
+        {/* Profile Section */}
         <div className="relative">
-          <button onClick={toggleMenu} className="rounded-full overflow-hidden w-10 h-10">
+          <button
+            onClick={() => setShowProfileMenu((prev) => !prev)}
+            className="rounded-full w-10 h-10 overflow-hidden border border-gray-300 dark:border-gray-600"
+            aria-label="Open Profile Menu"
+          >
             <img
               src="https://i.pravatar.cc/300"
-              alt="Profile"
+              alt="User Profile"
               className="w-full h-full object-cover"
             />
           </button>
 
           {/* Dropdown Menu */}
-          {showMenu && (
-            <div className="absolute right-0 mt-2 bg-white text-black dark:bg-gray-800 dark:text-white rounded-lg shadow-lg py-2 w-48">
-              {["Profile", "Plan", "States", "Logout"].map((item) => (
-                <div
+          {showProfileMenu && (
+            <div className="absolute right-0 mt-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg py-2 w-48">
+              {["Profile", "Logout"].map((item) => (
+                <Link
                   key={item}
-                  onClick={() => handleMenuItemClick(item)}
-                  className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                  to={`/${item.toLowerCase()}`}
+                  className="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  onClick={() => setShowProfileMenu(false)}
                 >
                   {item}
-                </div>
+                </Link>
               ))}
             </div>
           )}
         </div>
-      </header>
-
-      {/* Sidebar */}
-      {showSidebar && (
-        <div className={`fixed top-0 left-0 h-full w-64 shadow-lg z-50 ${isDarkMode ? "bg-gray-800 text-white" : "bg-slate-200 text-black"}`}>
-          <button
-            onClick={toggleSidebar}
-            className="absolute top-4 right-4 text-3xl"
-          >
-            ✖
-          </button>
-
-          <nav className="mt-8">
-            {["Home", "Profile", "Plan", "Settings", "States", "Logout"].map(
-              (item) => (
-                <Link
-                  key={item}
-                  to={`/${item.toLowerCase()}`}
-                  onClick={toggleSidebar}  // Close sidebar on link click
-                  className="block px-6 py-4 hover:bg-gray-400 dark:hover:bg-gray-900 cursor-pointer"
-                >
-                  {item}
-                </Link>
-              )
-            )}
-          </nav>
-        </div>
-      )}
-    </div>
+      </div>
+    </header>
   );
 };
 

@@ -49,7 +49,7 @@ const Sidebar = ({ isDarkMode, showSidebar, toggleSidebar }) => {
             {[
               { name: "Home", path: "/" },
              
-              { name: "Plan", path: "/plan" },
+              // { name: "Plan", path: "/plan" },
               // { name: "Settings", path: "/settings" },
               { name: "States", path: "/states" },
               { name: "Logout", path: "/logout" }
